@@ -112,8 +112,20 @@ document.addEventListener('DOMContentLoaded', function() {
             // Log data ra console để kiểm tra
             console.log('Form Data:', formObject);
             
-            // Push event vào dataLayer (GA4 Enhanced Measurement sẽ tự track form_start và form_submit)
-            // Nhưng bạn có thể push thêm custom event nếu muốn
+            // QUAN TRỌNG: Push event form_submit thủ công vì đã preventDefault()
+            // GA4 Enhanced Measurement không tự động track khi dùng preventDefault()
+            if (typeof window.dataLayer !== 'undefined') {
+                window.dataLayer.push({
+                    'event': 'form_submit',
+                    'form_id': 'consultationForm',
+                    'form_name': 'Consultation Form',
+                    'form_destination': window.location.href
+                });
+                
+                console.log('GA4 event pushed: form_submit');
+            }
+            
+            // Push thêm custom event
             if (typeof window.dataLayer !== 'undefined') {
                 window.dataLayer.push({
                     'event': 'consultation_form_submit',
@@ -141,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         // Track form_start khi user bắt đầu điền form
-        // GA4 Enhanced Measurement đã tự động track, nhưng có thể custom thêm
+        // GA4 Enhanced Measurement tự động track event này
         let formStartTracked = false;
         const formInputs = form.querySelectorAll('input, select, textarea');
         
@@ -149,15 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
             input.addEventListener('focus', function() {
                 if (!formStartTracked) {
                     formStartTracked = true;
-                    
-                    if (typeof window.dataLayer !== 'undefined') {
-                        window.dataLayer.push({
-                            'event': 'form_interaction_start',
-                            'form_name': 'Consultation Form'
-                        });
-                        
-                        console.log('Form interaction started');
-                    }
+                    console.log('Form interaction started - GA4 should auto-track form_start event');
                 }
             });
         });
