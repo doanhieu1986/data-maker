@@ -1,11 +1,12 @@
+<!-- register-products.html (Trang mới để link "Đăng ký sản phẩm" hoạt động) -->
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng ký sản phẩm - Công ty Chứng khoán Mẫu</title>
+    <title>Đăng Ký Sản Phẩm - Công ty Chứng khoán Mẫu</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- Thêm GTM tương tự -->
+    <!-- Google Tag Manager (giữ nguyên như index.html) -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
     j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
@@ -17,7 +18,7 @@
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     <header>
-        <h1>Đăng ký sản phẩm</h1>
+        <h1>Công ty Chứng khoán Mẫu</h1>
         <nav>
             <ul>
                 <li><a href="index.html">Trang chủ</a></li>
@@ -28,26 +29,27 @@
     </header>
 
     <main>
-        <section>
-            <h2>Chọn sản phẩm</h2>
+        <section id="register-products">
+            <h2>Đăng Ký Sản Phẩm</h2>
             <form id="registerProductsForm">
-                <input type="checkbox" id="margin" value="Margin">
-                <label for="margin">Margin</label><br>
+                <label>
+                    <input type="checkbox" value="Margin"> Margin
+                </label>
+                <label>
+                    <input type="checkbox" value="Chứng chỉ quỹ"> Chứng chỉ quỹ
+                </label>
+                <label>
+                    <input type="checkbox" value="Phái sinh"> Phái sinh
+                </label>
                 
-                <input type="checkbox" id="fund-cert" value="Chứng chỉ quỹ">
-                <label for="fund-cert">Chứng chỉ quỹ</label><br>
-                
-                <input type="checkbox" id="derivatives" value="Phái sinh">
-                <label for="derivatives">Phái sinh</label><br><br>
-                
-                <button type="submit">Đăng ký</button>
+                <button type="submit">Đăng Ký</button>
             </form>
             <p id="message"></p>
         </section>
     </main>
 
     <footer>
-        <p>&copy; 2026 Công ty Chứng khoán Mẫu.</p>
+        <p>&copy; 2026 Công ty Chứng khoán Mẫu. Tất cả quyền được bảo lưu.</p>
     </footer>
 
     <script src="script.js"></script>
