@@ -107,6 +107,91 @@
             </div>
         </section>
 
+        <!-- Section Form tư vấn để test GA4 form interaction -->
+        <section id="consultation-form">
+            <h2>Đăng ký tư vấn miễn phí (Test Form Interaction)</h2>
+            <p>Để lại thông tin để chuyên viên của chúng tôi tư vấn về các sản phẩm đầu tư phù hợp với bạn.</p>
+            
+            <form id="consultationForm" class="consultation-form">
+                <div class="form-group">
+                    <label for="fullName">Họ và tên <span class="required">*</span></label>
+                    <input type="text" id="fullName" name="fullName" required placeholder="Nhập họ tên đầy đủ">
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Số điện thoại <span class="required">*</span></label>
+                    <input type="tel" id="phone" name="phone" required placeholder="0912 345 678">
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email <span class="required">*</span></label>
+                    <input type="email" id="email" name="email" required placeholder="example@email.com">
+                </div>
+                
+                <div class="form-group">
+                    <label for="investment-experience">Kinh nghiệm đầu tư</label>
+                    <select id="investment-experience" name="investmentExperience">
+                        <option value="">-- Chọn mức độ --</option>
+                        <option value="newbie">Mới bắt đầu</option>
+                        <option value="beginner">Dưới 1 năm</option>
+                        <option value="intermediate">1-3 năm</option>
+                        <option value="advanced">Trên 3 năm</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Sản phẩm quan tâm</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="products" value="margin"> Margin
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="products" value="fund"> Chứng chỉ quỹ
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="products" value="derivatives"> Phái sinh
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="products" value="bonds"> Trái phiếu
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="investment-amount">Số vốn dự kiến đầu tư</label>
+                    <select id="investment-amount" name="investmentAmount">
+                        <option value="">-- Chọn mức vốn --</option>
+                        <option value="under-50m">Dưới 50 triệu</option>
+                        <option value="50m-100m">50-100 triệu</option>
+                        <option value="100m-500m">100-500 triệu</option>
+                        <option value="over-500m">Trên 500 triệu</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="message">Nội dung cần tư vấn</label>
+                    <textarea id="message" name="message" rows="4" placeholder="Để lại câu hỏi hoặc nội dung bạn muốn được tư vấn..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="agreeTerms" required>
+                        Tôi đồng ý với <a href="#" class="link-inline">điều khoản sử dụng</a> và <a href="#" class="link-inline">chính sách bảo mật</a> <span class="required">*</span>
+                    </label>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn-submit">Gửi đăng ký</button>
+                    <button type="reset" class="btn-reset">Xóa form</button>
+                </div>
+            </form>
+            
+            <!-- Thông báo sau khi submit -->
+            <div id="form-success-message" style="display: none; margin-top: 20px; padding: 15px; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 5px; color: #155724;">
+                <strong>✓ Đăng ký thành công!</strong> Chúng tôi sẽ liên hệ với bạn trong vòng 24h.
+            </div>
+        </section>
+
         <!-- Section FAQ dài để test scroll -->
 <!-- Section FAQ dài để test scroll -->
 <section id="faq">

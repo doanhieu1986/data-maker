@@ -79,3 +79,87 @@ if (purchaseForm) {
         dataLayer.push({'event': 'purchase_product', 'product': product, 'quantity': quantity});
     });
 }
+
+// JavaScript để xử lý form submission
+// Thêm vào file script.js hoặc chạy riêng
+
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('consultationForm');
+    const successMessage = document.getElementById('form-success-message');
+    
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault(); // Ngăn form submit mặc định
+            
+            // Lấy dữ liệu form
+            const formData = new FormData(form);
+            const formObject = {};
+            
+            // Chuyển FormData thành object
+            formData.forEach((value, key) => {
+                if (formObject[key]) {
+                    // Nếu key đã tồn tại (như checkbox), chuyển thành array
+                    if (Array.isArray(formObject[key])) {
+                        formObject[key].push(value);
+                    } else {
+                        formObject[key] = [formObject[key], value];
+                    }
+                } else {
+                    formObject[key] = value;
+                }
+            });
+            
+            // Log data ra console để kiểm tra
+            console.log('Form Data:', formObject);
+            
+            // Push event vào dataLayer (GA4 Enhanced Measurement sẽ tự track form_start và form_submit)
+            // Nhưng bạn có thể push thêm custom event nếu muốn
+            if (typeof window.dataLayer !== 'undefined') {
+                window.dataLayer.push({
+                    'event': 'consultation_form_submit',
+                    'form_name': 'Consultation Form',
+                    'investment_experience': formObject.investmentExperience || 'not_selected',
+                    'investment_amount': formObject.investmentAmount || 'not_selected'
+                });
+                
+                console.log('Custom GA4 event pushed: consultation_form_submit');
+            }
+            
+            // Hiển thị thông báo thành công
+            successMessage.style.display = 'block';
+            
+            // Ẩn form hoặc reset
+            form.reset();
+            
+            // Scroll đến thông báo
+            successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // Tự động ẩn thông báo sau 5 giây
+            setTimeout(function() {
+                successMessage.style.display = 'none';
+            }, 5000);
+        });
+        
+        // Track form_start khi user bắt đầu điền form
+        // GA4 Enhanced Measurement đã tự động track, nhưng có thể custom thêm
+        let formStartTracked = false;
+        const formInputs = form.querySelectorAll('input, select, textarea');
+        
+        formInputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                if (!formStartTracked) {
+                    formStartTracked = true;
+                    
+                    if (typeof window.dataLayer !== 'undefined') {
+                        window.dataLayer.push({
+                            'event': 'form_interaction_start',
+                            'form_name': 'Consultation Form'
+                        });
+                        
+                        console.log('Form interaction started');
+                    }
+                }
+            });
+        });
+    }
+});
