@@ -240,8 +240,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Kiểm tra form hợp lệ (tùy chọn)
         if (name && email && phone) {
-            // KHÔNG gửi PII (name/email/phone) sang GA4.
-            // GA4 recommended event: sign_up
+            // Giữ lại event cũ để bạn test trong GTM (có PII)
+            pushToDataLayer('register_account', {
+                user_name: name,
+                user_email: email,
+                user_phone: phone,
+            });
+
+            // GA4 recommended event: sign_up (không chứa PII)
             pushToDataLayer('sign_up', {
                 method: 'open_account_form',
                 form_id: 'openAccountForm',
