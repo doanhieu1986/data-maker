@@ -167,3 +167,39 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('openAccountForm');
+    const message = document.getElementById('message');
+
+    form.addEventListener('submit', function(event) {
+        event.preventDefault(); // Ngăn reload trang (tùy chọn, nếu bạn muốn xử lý AJAX)
+
+        // Lấy dữ liệu form (tùy chọn, để validate hoặc gửi server nếu cần)
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const phone = document.getElementById('phone').value;
+
+        // Kiểm tra form hợp lệ (tùy chọn)
+        if (name && email && phone) {
+            // Push event vào dataLayer cho GTM
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({
+                'event': 'register_account', // Tên event custom
+                'user_name': name,          // Parameters tùy chọn (ví dụ: gửi thêm dữ liệu)
+                'user_email': email,
+                'user_phone': phone
+            });
+
+            // Hiển thị thông báo thành công
+            message.textContent = 'Tài khoản đã được mở thành công! Event đã được ghi nhận.';
+            message.style.color = 'green';
+
+            // Reset form (tùy chọn)
+            form.reset();
+        } else {
+            message.textContent = 'Vui lòng điền đầy đủ thông tin.';
+            message.style.color = 'red';
+        }
+    });
+});
