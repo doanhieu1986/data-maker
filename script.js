@@ -1,13 +1,43 @@
+function pushToDataLayer(eventName, params = {}) {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: eventName, ...params });
+}
+
+function normalizeProduct(productLike) {
+    const raw = String(productLike || '').toLowerCase();
+
+    if (raw.includes('margin')) return { item_id: 'margin', item_name: 'Margin', price: 1000000 };
+    if (raw.includes('fund') || raw.includes('chứng chỉ quỹ') || raw.includes('quỹ')) {
+        return { item_id: 'fund', item_name: 'Chứng chỉ quỹ', price: 500000 };
+    }
+    if (raw.includes('derivatives') || raw.includes('phái sinh')) {
+        return { item_id: 'derivatives', item_name: 'Phái sinh', price: 2000000 };
+    }
+
+    return { item_id: 'unknown', item_name: String(productLike || 'Unknown'), price: 0 };
+}
+
+function joinSelected(values) {
+    const arr = (values || []).map(v => normalizeProduct(v).item_id).filter(Boolean);
+    return arr.join('|');
+}
+
 // Xử lý toggle details cho sản phẩm (test click)
 const toggleButtons = document.querySelectorAll('.toggle-details');
 toggleButtons.forEach(button => {
     button.addEventListener('click', function() {
         const targetId = this.getAttribute('data-target');
         const details = document.getElementById(targetId);
-        details.style.display = details.style.display === 'none' ? 'block' : 'none';
-        // Push event cho GTM để track click
-        window.dataLayer = window.dataLayer || [];
-        dataLayer.push({'event': 'product_details_click', 'product': targetId});
+        if (details) {
+            details.style.display = details.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // GA4 recommended event: select_item (ecommerce)
+        const p = normalizeProduct(targetId);
+        pushToDataLayer('select_item', {
+            item_list_name: 'intro_products',
+            items: [{ item_id: p.item_id, item_name: p.item_name }],
+        });
     });
 });
 
@@ -19,16 +49,15 @@ const closeModal = document.getElementById('close-modal');
 if (newsletterBtn) {
     newsletterBtn.addEventListener('click', function() {
         modal.style.display = 'block';
-        // Push event cho GTM
-        dataLayer.push({'event': 'newsletter_open'});
+        // Custom event (không có recommended tương ứng cho "open modal")
+        pushToDataLayer('newsletter_modal', { action: 'open', modal_name: 'newsletter', placement: 'intro_company' });
     });
 }
 
 if (closeModal) {
     closeModal.addEventListener('click', function() {
         modal.style.display = 'none';
-        // Push event cho GTM
-        dataLayer.push({'event': 'newsletter_close'});
+        pushToDataLayer('newsletter_modal', { action: 'close', modal_name: 'newsletter', placement: 'intro_company' });
     });
 }
 
@@ -39,7 +68,7 @@ window.addEventListener('scroll', function() {
         const markerTop = marker.getBoundingClientRect().top;
         if (markerTop < window.innerHeight && !window.scrollTracked) {
             window.scrollTracked = true; // Chỉ track 1 lần
-            dataLayer.push({'event': 'scroll_to_faq_end'});
+            pushToDataLayer('scroll_to_faq_end', { section: 'faq' });
         }
     }
 });
@@ -50,7 +79,12 @@ if (openAccountForm) {
     openAccountForm.addEventListener('submit', function(e) {
         e.preventDefault();
         document.getElementById('message').textContent = 'Tài khoản đã được mở (giả lập)!';
-        dataLayer.push({'event': 'open_account'});
+        // GA4 recommended event: sign_up
+        pushToDataLayer('sign_up', {
+            method: 'open_account_form',
+            form_id: 'openAccountForm',
+            form_name: 'Open Account Form',
+        });
     });
 }
 
@@ -62,7 +96,16 @@ if (registerProductsForm) {
         const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
         checkboxes.forEach(cb => selected.push(cb.value));
         document.getElementById('message').textContent = `Đã đăng ký: ${selected.join(', ')} (giả lập)!`;
-        dataLayer.push({'event': 'register_product', 'products': selected});
+
+        // GA4 recommended event: generate_lead
+        const products_selected = joinSelected(selected);
+        pushToDataLayer('generate_lead', {
+            lead_type: 'register_products',
+            form_id: 'registerProductsForm',
+            form_name: 'Register Products Form',
+            products_selected,
+            products_count: selected.length,
+        });
     });
 }
 
@@ -72,11 +115,26 @@ if (purchaseForm) {
     purchaseForm.addEventListener('submit', function(e) {
         e.preventDefault();
         const product = document.querySelector('input[name="product"]:checked').value;
-        const quantity = document.getElementById('quantity').value;
+        const quantity = Number(document.getElementById('quantity').value || 1);
         document.getElementById('purchase-message').textContent = `Đã mua ${quantity} x ${product} (giả lập)!`;
-        // Push event cho GTM
-        window.dataLayer = window.dataLayer || [];
-        dataLayer.push({'event': 'purchase_product', 'product': product, 'quantity': quantity});
+
+        // GA4 recommended event: purchase (ecommerce)
+        const p = normalizeProduct(product);
+        const value = (p.price || 0) * quantity;
+        const transaction_id = `T${Date.now()}_${Math.floor(Math.random() * 1e6)}`;
+        pushToDataLayer('purchase', {
+            transaction_id,
+            currency: 'VND',
+            value,
+            items: [
+                {
+                    item_id: p.item_id,
+                    item_name: p.item_name,
+                    price: p.price,
+                    quantity,
+                },
+            ],
+        });
     });
 }
 
@@ -114,28 +172,26 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // QUAN TRỌNG: Push event form_submit thủ công vì đã preventDefault()
             // GA4 Enhanced Measurement không tự động track khi dùng preventDefault()
-            if (typeof window.dataLayer !== 'undefined') {
-                window.dataLayer.push({
-                    'event': 'form_submit',
-                    'form_id': 'consultationForm',
-                    'form_name': 'Consultation Form',
-                    'form_destination': window.location.href
-                });
-                
-                console.log('GA4 event pushed: form_submit');
-            }
-            
-            // Push thêm custom event
-            if (typeof window.dataLayer !== 'undefined') {
-                window.dataLayer.push({
-                    'event': 'consultation_form_submit',
-                    'form_name': 'Consultation Form',
-                    'investment_experience': formObject.investmentExperience || 'not_selected',
-                    'investment_amount': formObject.investmentAmount || 'not_selected'
-                });
-                
-                console.log('Custom GA4 event pushed: consultation_form_submit');
-            }
+            pushToDataLayer('form_submit', {
+                form_id: 'consultationForm',
+                form_name: 'Consultation Form',
+                form_destination: window.location.href,
+            });
+
+            // GA4 recommended event: generate_lead
+            const selectedProducts = Array.isArray(formObject.products)
+                ? formObject.products
+                : (formObject.products ? [formObject.products] : []);
+            const products_selected = joinSelected(selectedProducts);
+            pushToDataLayer('generate_lead', {
+                lead_type: 'consultation',
+                form_id: 'consultationForm',
+                form_name: 'Consultation Form',
+                investment_experience: formObject.investmentExperience || 'not_selected',
+                investment_amount: formObject.investmentAmount || 'not_selected',
+                products_selected,
+                products_count: selectedProducts.length,
+            });
             
             // Hiển thị thông báo thành công
             successMessage.style.display = 'block';
@@ -172,6 +228,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('openAccountForm');
     const message = document.getElementById('message');
 
+    if (!form) return;
+
     form.addEventListener('submit', function(event) {
         event.preventDefault(); // Ngăn reload trang (tùy chọn, nếu bạn muốn xử lý AJAX)
 
@@ -182,13 +240,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Kiểm tra form hợp lệ (tùy chọn)
         if (name && email && phone) {
-            // Push event vào dataLayer cho GTM
-            window.dataLayer = window.dataLayer || [];
-            window.dataLayer.push({
-                'event': 'register_account', // Tên event custom
-                'user_name': name,          // Parameters tùy chọn (ví dụ: gửi thêm dữ liệu)
-                'user_email': email,
-                'user_phone': phone
+            // KHÔNG gửi PII (name/email/phone) sang GA4.
+            // GA4 recommended event: sign_up
+            pushToDataLayer('sign_up', {
+                method: 'open_account_form',
+                form_id: 'openAccountForm',
+                form_name: 'Open Account Form',
             });
 
             // Hiển thị thông báo thành công
